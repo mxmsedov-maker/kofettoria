@@ -1,0 +1,14 @@
+{
+  "name": "Кофеттория — кондитерская-кофейня",
+  "short_name": "Кофеттория",
+  "lang": "ru",
+  "start_url": "./",
+  "display": "browser",
+  "background_color": "#1E1C1B",
+  "theme_color": "#1E1C1B",
+  "icons": [
+    {"src": "assets/favicon/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "assets/favicon/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "assets/favicon/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

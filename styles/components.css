@@ -1,0 +1,2163 @@
+/* ==========================================================================
+   Кофеттория — компоненты v1 (tokens.md 11.0) и элементы бренда (12, 13)
+   Зависит от tokens.css и base.css.
+
+   Порядок в каждом компоненте: база → hover (только при (hover: hover)) →
+   active → disabled. Фокус — одно общее правило в base.css
+   (:focus-visible, .is-focus). Статичные демо-состояния витрины
+   (.is-hover, .is-active) — в конце файла, раздел «Только витрина».
+   Последний раздел — forced-colors (tokens.md 7.6).
+   ========================================================================== */
+
+/* Визуально скрытый, но фокусируемый нативный input (чекбокс, радио, тоггл) */
+.choice__input,
+.switch__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   11.1 Кнопка
+   ========================================================================== */
+.btn {
+  --btn-bg: transparent;
+  --btn-border: transparent;
+  --btn-fg: var(--color-chalk);
+  --btn-h: var(--btn-h-m);
+  --btn-px: var(--space-16);
+  --btn-gap: var(--space-8);
+  --btn-icon: var(--icon-m);
+  --btn-min-w: var(--btn-min-w-m);
+  --btn-radius: var(--radius-md);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--btn-gap);
+  min-width: var(--btn-min-w);
+  height: var(--btn-h);
+  padding-inline: var(--btn-px);
+  border: var(--border-hand) solid var(--btn-border);
+  border-radius: var(--btn-radius);
+  background-color: var(--btn-bg);
+  color: var(--btn-fg);
+  font: var(--ui-m);
+  letter-spacing: var(--ui-m-ls);
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    text-decoration-color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+
+.btn__icon {
+  flex: none;
+  width: var(--btn-icon);
+  height: var(--btn-icon);
+}
+
+/* Размеры */
+.btn--l {
+  --btn-h: var(--btn-h-l);
+  --btn-px: var(--space-24);
+  --btn-icon: var(--icon-l);
+  --btn-min-w: var(--btn-min-w-l);
+  font: var(--ui-l);
+  letter-spacing: var(--ui-l-ls);
+}
+
+/* S — только (pointer: fine) и ≥ 1024; на сенсорных не применяется */
+.btn--s {
+  --btn-h: var(--btn-h-s);
+  --btn-px: var(--space-12);
+  --btn-gap: var(--space-4);
+  --btn-icon: var(--icon-s);
+  --btn-min-w: var(--btn-min-w-s);
+  --btn-radius: var(--radius-sm);
+  font: var(--ui-s);
+  letter-spacing: var(--ui-s-ls);
+}
+
+.btn[hidden] {
+  display: none;
+}
+
+/* Варианты */
+.btn--primary {
+  --btn-bg: var(--color-accent);
+  --btn-border: var(--color-accent);
+  --btn-fg: var(--color-ink);
+}
+
+.btn--secondary {
+  --btn-border: var(--color-chalk);
+}
+
+.btn--ghost {
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: var(--border-hand);
+  text-underline-offset: var(--space-4);
+}
+
+@media (hover: hover) {
+  .btn--primary:hover {
+    --btn-bg: var(--color-accent-hover);
+    --btn-border: var(--color-accent-hover);
+  }
+
+  .btn--secondary:hover {
+    --btn-bg: var(--overlay-hover);
+  }
+
+  .btn--ghost:hover {
+    text-decoration-color: var(--color-accent);
+  }
+}
+
+/* active: «вдавили в бумагу» */
+.btn:active {
+  transform: translateY(var(--press-shift));
+}
+
+.btn--primary:active {
+  --btn-bg: var(--color-accent-active);
+  --btn-border: var(--color-accent-active);
+}
+
+.btn--secondary:active {
+  --btn-bg: var(--overlay-active);
+}
+
+.btn--ghost:active {
+  --btn-fg: var(--color-accent);
+}
+
+/* disabled — после hover/active, перекрывает их */
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  --btn-fg: var(--color-chalk-disabled);
+  cursor: not-allowed;
+  transform: none;
+  text-decoration-color: transparent;
+}
+
+.btn--primary:disabled,
+.btn--primary[aria-disabled="true"] {
+  --btn-bg: var(--color-surface-raised);
+  --btn-border: var(--color-chalk-disabled);
+}
+
+.btn--secondary:disabled,
+.btn--secondary[aria-disabled="true"] {
+  --btn-bg: transparent;
+  --btn-border: var(--color-chalk-disabled);
+}
+
+/* Загрузка: текст остаётся, слева вращающийся круг 2px */
+.btn[aria-busy="true"] {
+  pointer-events: none;
+}
+
+.btn__spinner {
+  flex: none;
+  width: var(--btn-icon);
+  height: var(--btn-icon);
+  border: var(--border-hand) solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--radius-pill);
+  animation: spin var(--dur-spin) linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* Тач-цели (7.4): M расширяется до 44, контур не меняется */
+@media (pointer: coarse) {
+  .btn:not(.btn--l, .btn--s)::after {
+    content: "";
+    position: absolute;
+    inset: calc((var(--btn-h-m) - var(--hit-min)) / 2 - var(--border-hand));
+  }
+}
+
+/* ==========================================================================
+   11.2 Icon button (M: Ghost, Secondary)
+   ========================================================================== */
+.icon-btn {
+  --ib-bg: transparent;
+  --ib-border: transparent;
+  --ib-fg: var(--color-chalk);
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--icon-btn-size);
+  height: var(--icon-btn-size);
+  border: var(--border-hand) solid var(--ib-border);
+  border-radius: var(--radius-md);
+  background-color: var(--ib-bg);
+  color: var(--ib-fg);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+
+.icon-btn svg {
+  width: var(--icon-m);
+  height: var(--icon-m);
+}
+
+.icon-btn--secondary {
+  --ib-border: var(--color-chalk);
+}
+
+@media (hover: hover) {
+  .icon-btn:hover {
+    --ib-bg: var(--overlay-hover);
+  }
+}
+
+.icon-btn:active {
+  --ib-bg: var(--overlay-active);
+  transform: translateY(var(--press-shift));
+}
+
+.icon-btn:disabled,
+.icon-btn[aria-disabled="true"] {
+  --ib-bg: transparent;
+  --ib-fg: var(--color-chalk-disabled);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.icon-btn--secondary:disabled,
+.icon-btn--secondary[aria-disabled="true"] {
+  --ib-border: var(--color-chalk-disabled);
+}
+
+@media (pointer: coarse) {
+  .icon-btn::after {
+    content: "";
+    position: absolute;
+    inset: calc((var(--icon-btn-size) - var(--hit-min)) / 2 - var(--border-hand));
+  }
+}
+
+/* ==========================================================================
+   11.3 FAB «Наверх» — только < 768
+   ========================================================================== */
+.fab {
+  position: fixed;
+  right: calc(var(--space-16) + env(safe-area-inset-right, 0px));
+  bottom: calc(var(--space-16) + env(safe-area-inset-bottom, 0px));
+  z-index: var(--z-fab);
+  display: grid;
+  place-items: center;
+  width: var(--fab-size);
+  height: var(--fab-size);
+  border: var(--border-hand) solid var(--color-chalk);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface);
+  color: var(--color-chalk);
+  box-shadow: var(--shadow-md);
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    opacity var(--dur-base) var(--ease-standard),
+    visibility var(--dur-base) var(--ease-standard),
+    background-color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+
+.fab svg {
+  width: var(--icon-l);
+  height: var(--icon-l);
+}
+
+/* Появляется после прокрутки на 2 экрана (класс от JS). Без JS — виден всегда */
+.js .fab:not(.is-visible, .fab--static) {
+  opacity: 0;
+  visibility: hidden;
+}
+
+@media (hover: hover) {
+  .fab:hover {
+    background-color: var(--color-surface-raised);
+  }
+}
+
+.fab:active {
+  background-color: var(--color-surface);
+  background-image: linear-gradient(var(--overlay-active), var(--overlay-active));
+  transform: translateY(var(--press-shift));
+}
+
+/* Демонстрационный экземпляр в потоке */
+.fab--static {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  z-index: auto;
+}
+
+@media (min-width: 768px) {
+  .fab:not(.fab--static) {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   11.4–11.7 Поля: input, textarea, select, search
+   ========================================================================== */
+.input {
+  --input-border: var(--color-chalk-muted);
+  --input-autofill: inset 0 0 0 1000px var(--color-board); /* 7.5: перекрывает фон автозаполнения */
+  display: block;
+  width: 100%;
+  height: var(--field-h);
+  padding: 0 var(--space-16);
+  border: var(--border-hand) solid var(--input-border);
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  color: var(--color-chalk);
+  font: var(--ui-m);
+  letter-spacing: var(--ui-m-ls);
+  appearance: none;
+  transition: border-color var(--dur-fast) var(--ease-standard);
+}
+
+.input::placeholder {
+  color: var(--color-chalk-muted);
+  opacity: 1;
+}
+
+.input--multiline {
+  height: auto;
+  min-height: var(--textarea-min-h);
+  padding: var(--space-12) var(--space-16);
+  resize: vertical;
+}
+
+/* hover: контур chalk-muted → chalk */
+@media (hover: hover) {
+  .input:hover:not(:disabled, [readonly]) {
+    --input-border: var(--color-chalk);
+  }
+}
+
+/* focus-visible: контур chalk (кольцо — общее правило base.css) */
+.input:focus-visible,
+.input.is-focus {
+  --input-border: var(--color-chalk);
+}
+
+/* read-only: пунктир chalk-muted, текст chalk, фокус доступен */
+.input[readonly] {
+  --input-border: var(--color-chalk-muted);
+  border-style: dashed;
+}
+
+/* autofill (7.5) и его имитация в витрине. :is() — «прощающий» список:
+   неизвестный браузеру псевдокласс не отменяет всё правило */
+.input:is(:autofill, :-webkit-autofill, .is-autofill) {
+  -webkit-text-fill-color: var(--color-chalk);
+  caret-color: var(--color-chalk);
+  box-shadow: var(--input-autofill);
+}
+
+/* error: контур error. Специфичность выше hover и focus — ошибка не пропадает */
+.input[aria-invalid="true"]:not(:disabled) {
+  --input-border: var(--color-error);
+}
+
+.input:disabled {
+  --input-border: var(--color-chalk-disabled);
+  color: var(--color-chalk-disabled);
+  -webkit-text-fill-color: var(--color-chalk-disabled);
+  cursor: not-allowed;
+}
+
+.input:disabled::placeholder {
+  color: var(--color-chalk-disabled);
+}
+
+/* Select L: нативный, шеврон — маска на псевдоэлементе обёртки */
+.select {
+  position: relative;
+  color: var(--color-chalk);
+}
+
+.select::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: calc(var(--space-16) + var(--border-hand));
+  width: var(--icon-m);
+  height: var(--icon-m);
+  translate: 0 -50%;
+  background-color: currentColor;
+  -webkit-mask: var(--icon-chevron-down) center / contain no-repeat;
+  mask: var(--icon-chevron-down) center / contain no-repeat;
+  pointer-events: none;
+}
+
+.select .input {
+  padding-right: var(--space-48);
+  cursor: pointer;
+}
+
+/* Не выбрано (required + пустое значение) — как плейсхолдер */
+.select .input:invalid {
+  color: var(--color-chalk-muted);
+}
+
+.select:has(.input:disabled) {
+  color: var(--color-chalk-disabled);
+}
+
+.select .input:disabled {
+  cursor: not-allowed;
+}
+
+/* Search: лупа слева, кнопка очистки 44×44 справа */
+.search {
+  position: relative;
+  color: var(--color-chalk-muted);
+}
+
+.search::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: calc(var(--space-12) + var(--border-hand));
+  width: var(--icon-m);
+  height: var(--icon-m);
+  translate: 0 -50%;
+  background-color: currentColor;
+  -webkit-mask: var(--icon-search) center / contain no-repeat;
+  mask: var(--icon-search) center / contain no-repeat;
+  pointer-events: none;
+}
+
+.search:focus-within,
+.search:has(.search__input.is-focus) {
+  color: var(--color-chalk);
+}
+
+.search:has(.input:disabled) {
+  color: var(--color-chalk-disabled);
+}
+
+.search__input {
+  padding-left: calc(var(--space-12) + var(--icon-m) + var(--space-8));
+  padding-right: var(--space-48);
+}
+
+.search__input::-webkit-search-cancel-button,
+.search__input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.search__clear {
+  position: absolute;
+  top: var(--border-hand);
+  right: var(--border-hand);
+  display: grid;
+  place-items: center;
+  width: var(--hit-min);
+  height: var(--hit-min);
+  border-radius: var(--radius-md);
+  color: var(--color-chalk);
+  transition:
+    opacity var(--dur-base) var(--ease-standard),
+    visibility var(--dur-base) var(--ease-standard);
+}
+
+.search__clear::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: var(--space-32);
+  height: var(--space-32);
+  margin: auto;
+  border-radius: var(--radius-pill);
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+
+.search__clear svg {
+  position: relative;
+  width: var(--icon-m);
+  height: var(--icon-m);
+}
+
+@media (hover: hover) {
+  .search__clear:hover::before {
+    background-color: var(--overlay-hover);
+  }
+}
+
+.search__clear:active::before {
+  background-color: var(--overlay-active);
+}
+
+/* Кнопка видна только при непустом значении */
+.search__input:placeholder-shown + .search__clear,
+.search__input:disabled + .search__clear {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* ==========================================================================
+   11.8 Группа поля
+   ========================================================================== */
+.form-stack {
+  display: grid;
+  gap: var(--field-group-gap);
+}
+
+.form-note {
+  font: var(--ui-xs);
+  letter-spacing: var(--ui-xs-ls);
+  color: var(--color-chalk-muted);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-8);
+  min-width: 0;
+}
+
+.field__label {
+  font: var(--ui-label);
+  letter-spacing: var(--ui-label-ls);
+  text-transform: uppercase;
+  color: var(--color-chalk-muted);
+}
+
+.field__required {
+  color: var(--color-chalk);
+}
+
+.field:has(.input:disabled) .field__label {
+  color: var(--color-chalk-disabled);
+}
+
+.field__meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-8);
+  font: var(--ui-xs);
+  letter-spacing: var(--ui-xs-ls);
+  color: var(--color-chalk-muted);
+}
+
+.field__counter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.field__counter--near {
+  color: var(--color-chalk);
+}
+
+.field__counter--over {
+  color: var(--color-error);
+}
+
+.field__counter--over::before,
+.field__error::before {
+  content: "";
+  flex: none;
+  width: var(--icon-s);
+  height: var(--icon-s);
+  background-color: currentColor;
+  -webkit-mask: var(--icon-alert-circle) center / contain no-repeat;
+  mask: var(--icon-alert-circle) center / contain no-repeat;
+}
+
+.field__error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  color: var(--color-error);
+}
+
+.field__error::before {
+  margin-top: calc((var(--ui-xs-lh) - var(--icon-s)) / 2);
+}
+
+.field__error[hidden],
+.field__hint[hidden] {
+  display: none;
+}
+
+/* ==========================================================================
+   11.9–11.10 Checkbox и Radio (.choice)
+   ========================================================================== */
+.choice-group {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.choice-group__legend {
+  margin-bottom: var(--space-8);
+  font: var(--ui-label);
+  letter-spacing: var(--ui-label-ls);
+  text-transform: uppercase;
+  color: var(--color-chalk-muted);
+}
+
+.choice {
+  --box-bg: transparent;
+  --box-border: var(--color-chalk);
+  --glyph: var(--color-ink);
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-8);
+  min-height: var(--control-row-min);
+  padding-block: calc((var(--control-row-min) - var(--ui-m-lh)) / 2);
+  font: var(--ui-m);
+  letter-spacing: var(--ui-m-ls);
+  color: var(--color-chalk);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.choice__box {
+  position: relative;
+  flex: none;
+  width: var(--control-size);
+  height: var(--control-size);
+  margin-top: calc((var(--ui-m-lh) - var(--control-size)) / 2);
+  border: var(--border-hand) solid var(--box-border);
+  border-radius: var(--radius-xs);
+  background-color: var(--box-bg);
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+
+.choice__box::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  opacity: 0;
+}
+
+.choice--radio .choice__box {
+  border-radius: var(--radius-pill);
+}
+
+/* checked */
+.choice__input:checked + .choice__box {
+  --box-bg: var(--color-accent);
+  --box-border: var(--color-accent);
+}
+
+.choice__input:checked + .choice__box::after {
+  opacity: 1;
+  width: var(--icon-s);
+  height: var(--icon-s);
+  background-color: var(--glyph);
+  -webkit-mask: var(--icon-check) center / contain no-repeat;
+  mask: var(--icon-check) center / contain no-repeat;
+}
+
+.choice--radio .choice__input:checked + .choice__box::after {
+  width: var(--radio-dot);
+  height: var(--radio-dot);
+  border-radius: var(--radius-pill);
+  -webkit-mask: none;
+  mask: none;
+}
+
+/* indeterminate — только чекбокс (радио без выбранного в группе браузер тоже
+   считает :indeterminate). Как в ките: прозрачная, контур chalk, черта chalk 10×2 */
+.choice__input[type="checkbox"]:enabled:indeterminate + .choice__box {
+  --box-bg: transparent;
+  --box-border: var(--color-chalk);
+  --glyph: var(--color-chalk);
+}
+
+.choice__input[type="checkbox"]:indeterminate + .choice__box::after {
+  opacity: 1;
+  width: var(--check-dash-w);
+  height: var(--check-dash-h);
+  background-color: var(--glyph);
+  -webkit-mask: none;
+  mask: none;
+}
+
+/* hover и active — только у доступных (:enabled), иначе перебили бы disabled */
+@media (hover: hover) {
+  .choice:hover .choice__input:enabled:not(:checked) + .choice__box,
+  .choice:hover .choice__input[type="checkbox"]:enabled:indeterminate + .choice__box {
+    --box-bg: var(--overlay-hover);
+  }
+
+  .choice:hover .choice__input:enabled:checked:not(:indeterminate) + .choice__box {
+    --box-bg: var(--color-accent-hover);
+    --box-border: var(--color-accent-hover);
+  }
+}
+
+.choice:active .choice__input:enabled:not(:checked) + .choice__box,
+.choice:active .choice__input[type="checkbox"]:enabled:indeterminate + .choice__box {
+  --box-bg: var(--overlay-active);
+}
+
+.choice:active .choice__input:enabled:checked:not(:indeterminate) + .choice__box {
+  --box-bg: var(--color-accent-active);
+  --box-border: var(--color-accent-active);
+}
+
+/* focus-visible — кольцо вокруг коробки (фокус у скрытого input) */
+.choice__input:focus-visible + .choice__box {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+/* error */
+.choice__input[aria-invalid="true"]:not(:checked) + .choice__box {
+  --box-border: var(--color-error);
+}
+
+/* disabled */
+.choice:has(.choice__input:disabled) {
+  color: var(--color-chalk-disabled);
+  cursor: not-allowed;
+}
+
+.choice .choice__input:disabled + .choice__box {
+  --box-bg: transparent;
+  --box-border: var(--color-chalk-disabled);
+  --glyph: var(--color-chalk-disabled);
+}
+
+.choice .choice__input:disabled:checked:not(:indeterminate) + .choice__box {
+  --box-bg: var(--color-surface-raised);
+}
+
+@media (pointer: coarse) {
+  .choice-group {
+    gap: var(--space-0);
+  }
+}
+
+/* ==========================================================================
+   11.11 Toggle L (input role="switch")
+   ========================================================================== */
+.switch {
+  --track-bg: var(--color-surface-raised);
+  --track-overlay: none;
+  --track-border: var(--color-chalk);
+  --thumb-border: var(--color-chalk);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-12);
+  min-height: var(--hit-min);
+  font: var(--ui-m);
+  letter-spacing: var(--ui-m-ls);
+  color: var(--color-chalk);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.switch__track {
+  position: relative;
+  flex: none;
+  width: var(--toggle-w);
+  height: var(--toggle-h);
+  border: var(--border-hand) solid var(--track-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--track-bg);
+  background-image: var(--track-overlay);
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+
+.switch__thumb {
+  position: absolute;
+  top: calc(-1 * var(--border-hand));
+  left: calc(-1 * var(--border-hand));
+  width: var(--toggle-h);
+  height: var(--toggle-h);
+  border: var(--border-hand) solid var(--thumb-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-board);
+  transition: transform var(--dur-base) var(--ease-standard);
+}
+
+/* Вкл. */
+.switch__input:checked + .switch__track {
+  --track-bg: var(--color-accent);
+  --track-border: var(--color-accent);
+}
+
+.switch__input:checked + .switch__track .switch__thumb {
+  transform: translateX(var(--toggle-travel));
+}
+
+/* hover: выкл. — surface-raised + overlay-hover; вкл. — accent-hover */
+@media (hover: hover) {
+  .switch:hover .switch__input:enabled:not(:checked) + .switch__track {
+    --track-overlay: linear-gradient(var(--overlay-hover), var(--overlay-hover));
+  }
+
+  .switch:hover .switch__input:enabled:checked + .switch__track {
+    --track-bg: var(--color-accent-hover);
+    --track-border: var(--color-accent-hover);
+  }
+}
+
+/* active: бегунок расширяется на 4 в сторону хода */
+.switch:active .switch__input:enabled + .switch__track .switch__thumb {
+  width: calc(var(--toggle-h) + var(--space-4));
+}
+
+.switch:active .switch__input:enabled:checked + .switch__track .switch__thumb {
+  margin-left: calc(-1 * var(--space-4));
+}
+
+/* focus-visible — кольцо вокруг трека (фокус у скрытого input) */
+.switch__input:focus-visible + .switch__track {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+/* disabled */
+.switch:has(.switch__input:disabled) {
+  color: var(--color-chalk-disabled);
+  cursor: not-allowed;
+}
+
+.switch .switch__input:disabled + .switch__track {
+  --track-bg: transparent;
+  --track-overlay: none;
+  --track-border: var(--color-chalk-disabled);
+  --thumb-border: var(--color-chalk-disabled);
+}
+
+.switch .switch__input:disabled:checked + .switch__track {
+  --track-bg: var(--color-surface-raised);
+}
+
+/* ==========================================================================
+   11.12 Tabs (underline) и прокручиваемые ряды
+   ========================================================================== */
+.scroll-row {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--space-32);
+  scrollbar-width: none;
+  padding: var(--space-8);
+  margin: calc(-1 * var(--space-8));
+}
+
+.scroll-row::-webkit-scrollbar {
+  display: none;
+}
+
+/* Затухание справа — только когда справа есть скрытое (класс от JS) */
+.scroll-row.is-fade-end {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - var(--space-32)), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - var(--space-32)), transparent);
+}
+
+.tablist {
+  position: relative;
+  display: flex;
+  flex: none;
+  min-width: 100%;
+}
+
+/* Разделитель 1px line-subtle — на самом tablist */
+.tablist::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: var(--border-hair);
+  background-color: var(--color-line-subtle);
+}
+
+/* Растянутый режим: вкладки поровну */
+.tablist--fill > .tab {
+  flex: 1 1 0;
+}
+
+.tab {
+  position: relative;
+  z-index: calc(var(--z-base) + 1);   /* над разделителем ::after списка */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  height: var(--tab-h);
+  padding-inline: var(--space-16);
+  border-radius: var(--radius-md);
+  color: var(--color-chalk-muted);
+  font: var(--ui-m);
+  letter-spacing: var(--ui-m-ls);
+  white-space: nowrap;
+  text-decoration: none;
+  scroll-snap-align: start;
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--dur-fast) var(--ease-standard);
+}
+
+.tab svg {
+  flex: none;
+  width: var(--icon-m);
+  height: var(--icon-m);
+}
+
+/* Подчёркивание 3px accent: растёт из центра (11.12) */
+.tab::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: var(--border-accent);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--dur-base) var(--ease-standard);
+}
+
+.tab[aria-selected="true"],
+.tab[aria-current]:not([aria-current="false"]) {
+  color: var(--color-chalk);
+}
+
+.tab[aria-selected="true"]::after,
+.tab[aria-current]:not([aria-current="false"])::after {
+  transform: scaleX(1);
+}
+
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--color-chalk);
+  }
+}
+
+.tab:active {
+  color: var(--color-accent);
+}
+
+.tab:disabled,
+.tab[aria-disabled="true"] {
+  color: var(--color-chalk-disabled);
+  cursor: not-allowed;
+}
+
+.tab-panel {
+  padding-top: var(--space-24);
+}
+
+/* ==========================================================================
+   11.13 Tag (неинтерактивный)
+   ========================================================================== */
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  padding: 0;
+  list-style: none;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  height: var(--tag-h);
+  padding-inline: var(--space-8);
+  border: var(--border-hand) solid var(--color-chalk-muted);
+  border-radius: var(--radius-sm);
+  color: var(--color-chalk);
+  font: var(--ui-xs);
+  letter-spacing: var(--ui-xs-ls);
+  text-transform: none;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.tag--filled {
+  border-color: var(--color-chalk);
+  background-color: var(--color-chalk);
+  color: var(--color-ink);
+}
+
+/* ==========================================================================
+   11.14 Chip-фильтр
+   ========================================================================== */
+.chip-row {
+  gap: var(--space-8);
+}
+
+@media (min-width: 768px) {
+  .chip-row {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}
+
+.chip {
+  --chip-bg: transparent;
+  --chip-border: var(--color-chalk);
+  --chip-fg: var(--color-chalk);
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-8);
+  height: var(--chip-h);
+  padding-inline: var(--space-16);
+  border: var(--border-hand) solid var(--chip-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--chip-bg);
+  color: var(--chip-fg);
+  font: var(--ui-s);
+  letter-spacing: var(--ui-s-ls);
+  white-space: nowrap;
+  scroll-snap-align: start;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
+}
+
+.chip__icon {
+  flex: none;
+  width: var(--icon-m);
+  height: var(--icon-m);
+}
+
+/* Галочка 16 слева — только у выбранного */
+.chip::before {
+  content: "";
+  display: none;
+  flex: none;
+  width: var(--icon-s);
+  height: var(--icon-s);
+  background-color: currentColor;
+  -webkit-mask: var(--icon-check) center / contain no-repeat;
+  mask: var(--icon-check) center / contain no-repeat;
+}
+
+.chip[aria-pressed="true"]::before {
+  display: block;
+}
+
+/* С иконкой слева — отступы 12 / 16 */
+.chip--icon,
+.chip[aria-pressed="true"] {
+  padding-left: var(--space-12);
+}
+
+/* У выбранного чипса с иконкой галочка заменяет иконку */
+.chip[aria-pressed="true"] .chip__icon {
+  display: none;
+}
+
+.chip[aria-pressed="true"] {
+  --chip-bg: var(--color-accent);
+  --chip-border: var(--color-accent);
+  --chip-fg: var(--color-ink);
+}
+
+@media (hover: hover) {
+  .chip:enabled:hover {
+    --chip-bg: var(--overlay-hover);
+  }
+
+  .chip[aria-pressed="true"]:enabled:hover {
+    --chip-bg: var(--color-accent-hover);
+    --chip-border: var(--color-accent-hover);
+  }
+}
+
+.chip:enabled:active {
+  --chip-bg: var(--overlay-active);
+}
+
+.chip[aria-pressed="true"]:enabled:active {
+  --chip-bg: var(--color-accent-active);
+  --chip-border: var(--color-accent-active);
+}
+
+.chip:disabled {
+  --chip-bg: transparent;
+  --chip-border: var(--color-chalk-disabled);
+  --chip-fg: var(--color-chalk-disabled);
+  cursor: not-allowed;
+}
+
+.chip[aria-pressed="true"]:disabled {
+  --chip-bg: var(--color-surface-raised);
+}
+
+/* Чипс-ссылка навигации по разделам: текущий раздел (aria-current) — заливка accent без галочки */
+a.chip {
+  text-decoration: none;
+}
+
+.chip[aria-current="true"] {
+  --chip-bg: var(--color-accent);
+  --chip-border: var(--color-accent);
+  --chip-fg: var(--color-ink);
+}
+
+@media (hover: hover) {
+  a.chip:hover {
+    --chip-bg: var(--overlay-hover);
+  }
+
+  a.chip[aria-current="true"]:hover {
+    --chip-bg: var(--color-accent-hover);
+    --chip-border: var(--color-accent-hover);
+  }
+}
+
+a.chip:active {
+  --chip-bg: var(--overlay-active);
+}
+
+a.chip[aria-current="true"]:active {
+  --chip-bg: var(--color-accent-active);
+  --chip-border: var(--color-accent-active);
+}
+
+@media (pointer: coarse) {
+  .chip::after {
+    content: "";
+    position: absolute;
+    inset: calc((var(--chip-h) - var(--hit-min)) / 2 - var(--border-hand));
+  }
+}
+
+/* ==========================================================================
+   11.15 Ссылка в тексте
+   ========================================================================== */
+.link {
+  border-radius: var(--radius-xs);
+  color: var(--color-accent);
+  text-decoration-line: underline;
+  text-decoration-thickness: var(--border-hair);
+  text-underline-offset: var(--link-underline-offset);
+  transition: color var(--dur-fast) var(--ease-standard);
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color: var(--color-accent-hover);
+    text-decoration-thickness: var(--border-hand);
+  }
+}
+
+.link:active {
+  color: var(--color-accent-active);
+}
+
+/* ==========================================================================
+   12.1 Заголовок раздела «как на доске»
+   ========================================================================== */
+.section-head {
+  margin-bottom: var(--heading-gap);
+}
+
+.overline {
+  display: block;
+  margin-bottom: var(--space-8);
+  font: var(--text-overline);
+  letter-spacing: var(--text-overline-ls);
+  text-transform: uppercase;
+  color: var(--color-chalk-muted);
+}
+
+.board-heading {
+  font: var(--text-h2);
+  letter-spacing: var(--text-h2-ls);
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--color-chalk);
+}
+
+.board-heading__line {
+  display: block;
+}
+
+/* «Хвост»: мелкий кегль в той же строке по базовой линии, переносится целиком */
+.board-heading__tail {
+  white-space: nowrap;
+  font-size: var(--text-h2-tail-size);
+  font-weight: var(--text-h2-tail-weight);
+  letter-spacing: var(--text-h2-tail-ls);
+}
+
+/* Рукописная подпись со стрелкой */
+.hand-note {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: var(--space-8);
+  font: var(--hand-xl);
+  letter-spacing: var(--hand-xl-ls);
+  color: var(--color-chalk);
+}
+
+/* ==========================================================================
+   12.2 Строка меню с отточием и ценой
+   ========================================================================== */
+.menu-group + .menu-group {
+  margin-top: var(--menu-group-gap);
+}
+
+/* minmax(0, 1fr): колонка не растягивается под самое длинное слово —
+   иначе строки с несколькими ценами выходят за экран на 360–375 */
+.menu-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--menu-row-gap);
+  padding: 0;
+  list-style: none;
+}
+
+.menu-item {
+  display: flex;
+  align-items: last baseline;
+  gap: var(--space-8);
+  color: var(--color-chalk);
+}
+
+/* Правый отступ — место под отточие: 8 от слова + его наименьшая длина, текст в него не заходит */
+.menu-item__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-right: calc(var(--leader-min, var(--space-24)) + var(--space-8));
+  overflow: hidden;
+  overflow: clip;
+  font: var(--text-menu-item);
+  letter-spacing: var(--text-menu-item-ls);
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+.menu-item__note {
+  font: var(--text-menu-note);
+  letter-spacing: var(--text-menu-note-ls);
+  color: var(--color-chalk-muted);
+}
+
+.menu-item__title .tag {
+  margin-left: var(--space-8);
+}
+
+/* Отточие: штрих 2×1 с периодом 3, на базовой линии */
+.menu-item__title::after,
+.menu-item__leader {
+  --leader-color: var(--color-chalk-muted);
+  height: var(--leader-height);
+  background:
+    linear-gradient(to right, var(--leader-color) var(--leader-dash), transparent var(--leader-dash))
+    left bottom / var(--leader-period) var(--leader-height) repeat-x;
+}
+
+/* Идёт сразу за последним словом, и на перенесённом названии тоже. Шириной в экран,
+   но места в строке не занимает (отрицательный отступ), конец обрезает край названия */
+.menu-item__title::after {
+  content: "";
+  display: inline-block;
+  width: 100vw;
+  margin-right: calc(-100vw - var(--space-8));
+  margin-left: var(--space-8);
+}
+
+/* Отдельным элементом отточие нужно только строке, где цены ушли вниз (--cols-4) */
+.menu-item__leader {
+  display: none;
+  flex: 1 0 var(--space-24);
+}
+
+.menu-item__price {
+  flex: none;
+  white-space: nowrap;
+  font: var(--text-price);
+  letter-spacing: var(--text-price-ls);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+@supports not (align-items: last baseline) {
+  .menu-item {
+    align-items: flex-end;
+  }
+
+  .menu-item__leader {
+    margin-bottom: 0.35em;
+  }
+}
+
+/* Нет в наличии (12.2): название, уточнение и цена — chalk-muted
+   (контент, а не неактивный контрол: chalk-disabled запрещён). Состояние передают
+   видимый тег (aria-hidden) и скрытый текст «, нет в наличии» после цены */
+.menu-item--unavailable .menu-item__title,
+.menu-item--unavailable .menu-item__note,
+.menu-item--unavailable .menu-item__price {
+  color: var(--color-chalk-muted);
+}
+
+/* ==========================================================================
+   12.3 Рукописные стрелки, лучи, подчёркивание
+   ========================================================================== */
+.hand-stroke {
+  display: block;
+  flex: none;
+  height: auto;
+  overflow: visible;
+  color: var(--color-chalk);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--stroke-hand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hand-stroke path {
+  vector-effect: non-scaling-stroke;
+}
+
+/* Стрелка: 64–96 на мобильном, 96–160 на десктопе (12.3) */
+.hand-arrow {
+  width: var(--arrow-w);
+}
+
+.hand-arrow--a { --arrow-w: var(--space-96); }
+.hand-arrow--b { --arrow-w: var(--space-64); }
+.hand-arrow--c { --arrow-w: var(--space-96); }
+
+@media (min-width: 768px) {
+  .hand-arrow--a { --arrow-w: calc(var(--space-128) + var(--space-32)); }
+  .hand-arrow--b { --arrow-w: var(--space-96); }
+  .hand-arrow--c { --arrow-w: var(--space-128); }
+}
+
+/* Зеркальная композиция (≥ 1024) или A «вниз-вправо» (< 1024) */
+/* C, повёрнутая на 90° по часовой: указывает вниз (единственный вариант C на < 1024).
+   Бокс обёртки — повёрнутый бокс стрелки (64×128 при ширине 128) */
+.hand-turn {
+  position: relative;
+  display: block;
+  flex: none;
+  width: calc(var(--arrow-w) / 2);
+  height: var(--arrow-w);
+}
+
+/* Бокс повёрнутой C — 64×128 на всех ширинах (12.3); стрелка внутри берёт ширину обёртки */
+.hand-turn--c {
+  --arrow-w: var(--space-128);
+}
+
+.hand-turn > .hand-arrow {
+  --arrow-w: inherit;
+  max-width: none;                     /* иначе base.css сожмёт до ширины обёртки */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  rotate: 90deg;
+}
+
+.hand-rays {
+  width: var(--rays-box);
+  height: var(--rays-box);
+}
+
+/* Прорисовка при первом появлении (класс от JS); без JS и при reduced-motion — сразу.
+   Штрихи — <use> из спрайта: dasharray/dashoffset наследуются внутрь, а
+   pathLength="1" задан у путей в assets */
+.js .hand-stroke--draw :is(path, use) {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.js .hand-stroke--draw.is-drawn :is(path, use) {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset var(--dur-draw) var(--ease-out);
+}
+
+.js .hand-stroke--draw.is-drawn .hand-stroke__head {
+  transition-delay: var(--dur-draw);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .hand-stroke--draw :is(path, use) {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Рукописное подчёркивание слова: ширина слова + 8 */
+.hand-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.hand-underline__line {
+  position: absolute;
+  top: 100%;
+  left: calc(-1 * var(--space-4));
+  width: calc(100% + var(--space-8));
+  height: var(--space-12);
+}
+
+/* ==========================================================================
+   12.4 Вырезанное фото блюда — плейсхолдер до получения фото
+   ========================================================================== */
+.dish {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  padding: var(--space-16);
+  border: var(--border-hand) dashed var(--color-chalk-disabled);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface);
+  color: var(--color-chalk-muted);
+  font: var(--ui-xs);
+  letter-spacing: var(--ui-xs-ls);
+  text-align: center;
+  filter: var(--shadow-dish);
+}
+
+.dish--wide {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-lg);
+}
+
+/* ==========================================================================
+   8. Логотип
+   ========================================================================== */
+.logo {
+  display: block;
+  color: var(--color-accent);
+}
+
+/* Основной логотип для шапки (8.5): исходный знак, всё — кривые */
+.logo--main {
+  width: var(--logo-main-w);
+  height: auto;
+}
+
+.logo--full {
+  width: var(--logo-full-w);
+  height: auto;
+}
+
+/* Герой: 240 на мобильном, 400 на десктопе */
+@media (min-width: 1024px) {
+  .logo--hero {
+    width: var(--logo-full-w-hero);
+  }
+}
+
+.logo--compact {
+  width: var(--logo-compact-w);
+  height: auto;
+}
+
+.logo--lockup {
+  width: auto;
+  height: var(--logo-lockup-h);
+}
+
+/* Монохром для светлого фона (8.3) */
+.logo--mono {
+  color: var(--color-board);
+}
+
+/* Знак: капкейк цвета ink */
+.logo__ink {
+  fill: var(--color-ink);
+}
+
+/* ==========================================================================
+   13.1 Карточка
+   ========================================================================== */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+  padding: var(--card-padding);
+  border-radius: var(--card-radius);
+  background-color: var(--card-bg);
+  color: var(--color-chalk);
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+
+.card--outlined {
+  border: var(--border-hair) solid var(--color-line-subtle);
+}
+
+.card__media {
+  overflow: hidden;
+  border-radius: var(--radius-md);
+}
+
+/* Изображение в край карточки: радиусы 16 16 0 0 */
+.card__media--bleed {
+  margin: calc(-1 * var(--card-padding)) calc(-1 * var(--card-padding)) 0;
+  border-radius: var(--card-radius) var(--card-radius) 0 0;
+}
+
+.card__title {
+  font: var(--text-h3);
+  letter-spacing: var(--text-h3-ls);
+  text-transform: uppercase;
+}
+
+.card__text {
+  color: var(--color-chalk-muted);
+}
+
+.card__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Зона нажатия — вся карточка */
+.card__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--card-radius);
+}
+
+@media (hover: hover) {
+  .card--link:hover {
+    background-color: var(--color-surface-raised);
+  }
+}
+
+/* Фокус у ссылки, кольцо — вокруг всей карточки */
+.card--link:has(.card__link:focus-visible) {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
+}
+
+@supports selector(:has(*)) {
+  .card__link:focus-visible {
+    outline: none;
+  }
+}
+
+/* ==========================================================================
+   13.2 Тост
+   Видимые тосты (с кнопкой «Закрыть») — в .toast-region, он не live-регион.
+   Для скринридера текст дублируется в два постоянных скрытых контейнера
+   role="status" / role="alert" (разметка страницы), следующим кадром
+   ========================================================================== */
+.toast-region {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--space-16) + env(safe-area-inset-bottom, 0px));
+  z-index: var(--z-toast);
+  display: grid;
+  gap: var(--space-8);
+  width: min(100% - 2 * var(--page-gutter), var(--toast-max));
+  translate: -50% 0;
+  pointer-events: none;
+}
+
+/* < 768, пока виден FAB: тост встаёт над ним (16 + 56 + 8) */
+body:has(.fab.is-visible) .toast-region {
+  bottom: calc(var(--space-16) + var(--fab-size) + var(--space-8) + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 768px) {
+  body:has(.fab.is-visible) .toast-region {
+    bottom: calc(var(--space-16) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+.toast {
+  --toast-status: var(--color-success);
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-12) var(--space-16);
+  border: var(--border-hand) solid var(--toast-status);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  color: var(--color-chalk);
+  font: var(--ui-m);
+  letter-spacing: var(--ui-m-ls);
+  pointer-events: auto;
+  transition:
+    opacity var(--dur-base) var(--ease-standard),
+    transform var(--dur-base) var(--ease-standard);
+}
+
+.toast[hidden] {
+  display: none;
+}
+
+.toast--error {
+  --toast-status: var(--color-error);
+}
+
+.toast__icon {
+  flex: none;
+  width: var(--icon-m);
+  height: var(--icon-m);
+  color: var(--toast-status);
+}
+
+.toast__text {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Закрыть — icon button Ghost M, не раздувает высоту тоста */
+.toast__close {
+  margin-block: calc((var(--ui-m-lh) - var(--icon-btn-size)) / 2);
+  margin-right: calc(-1 * var(--space-8));
+}
+
+/* Появление: сдвиг 16 + fade */
+.toast.is-entering,
+.toast.is-leaving {
+  opacity: 0;
+  transform: translateY(var(--space-16));
+}
+
+/* ==========================================================================
+   13.3 Навигация (пункты шапки ≥ 1024) — ссылка
+   ========================================================================== */
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--btn-h-m);
+  border-radius: var(--radius-xs);
+  color: var(--color-chalk-muted);
+  font: var(--ui-m);
+  letter-spacing: var(--ui-m-ls);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease-standard);
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: var(--border-accent);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--dur-base) var(--ease-standard);
+}
+
+@media (hover: hover) {
+  .nav-link:hover {
+    color: var(--color-chalk);
+  }
+}
+
+.nav-link[aria-current="page"] {
+  color: var(--color-chalk);
+}
+
+.nav-link[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+/* ==========================================================================
+   13.4 Подвал
+   ========================================================================== */
+.site-footer {
+  padding-block: var(--space-48) calc(var(--space-48) + env(safe-area-inset-bottom, 0px));
+  color: var(--color-chalk-muted);
+  font: var(--text-small);
+  letter-spacing: var(--text-small-ls);
+}
+
+@media (min-width: 768px) {
+  .site-footer {
+    padding-block: var(--space-64) calc(var(--space-64) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+.site-footer__grid {
+  display: grid;
+  gap: var(--space-32);
+}
+
+@media (min-width: 768px) {
+  .site-footer__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-32) var(--grid-gutter);
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-footer__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.site-footer__title {
+  margin-bottom: var(--space-8);
+  font: var(--text-overline);
+  letter-spacing: var(--text-overline-ls);
+  text-transform: uppercase;
+  color: var(--color-chalk);
+}
+
+.site-footer__logo {
+  padding: var(--space-12);
+  margin: calc(-1 * var(--space-12));
+}
+
+.site-footer__bottom {
+  margin-top: var(--space-48);
+  padding-top: var(--space-24);
+  border-top: var(--border-hair) solid var(--color-line-subtle);
+}
+
+/* Нижняя строка с документами: копирайт слева, ссылки на политику справа (13.4) */
+.site-footer__legal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8) var(--space-24);
+}
+
+.site-footer__docs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-24);
+}
+
+.site-footer__docs .footer-link {
+  font: var(--text-small);
+  letter-spacing: var(--text-small-ls);
+  color: var(--color-chalk-muted);
+}
+
+/* страница без сетки подвала: строка сразу, без отступа и линии сверху */
+.site-footer .container > .site-footer__legal:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.footer-links {
+  display: grid;
+  padding: 0;
+  list-style: none;
+}
+
+.footer-link {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-radius: var(--radius-xs);
+  color: var(--color-chalk);
+  font: var(--ui-m);
+  letter-spacing: var(--ui-m-ls);
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: var(--border-hand);
+  text-underline-offset: var(--space-4);
+  transition: text-decoration-color var(--dur-fast) var(--ease-standard);
+}
+
+@media (hover: hover) {
+  .footer-link:hover {
+    text-decoration-color: var(--color-chalk);
+  }
+}
+
+@media (pointer: coarse) {
+  .footer-link {
+    min-height: var(--hit-min);
+  }
+}
+
+/* ==========================================================================
+   Ссылка «К содержанию» (вид — Primary M), видна только при фокусе
+   ========================================================================== */
+.skip-link {
+  position: absolute;
+  top: var(--space-8);
+  left: var(--space-8);
+  z-index: var(--z-modal);
+}
+
+.skip-link:not(:focus) {
+  width: 1px;
+  min-width: 0;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   7.3 Уменьшенное движение: спиннер → три точки без анимации
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .btn__spinner {
+    width: auto;
+    height: auto;
+    border: 0;
+    animation: none;
+  }
+
+  .btn__spinner::before {
+    content: "•••";
+  }
+}
+
+/* ==========================================================================
+   ТОЛЬКО ВИТРИНА (styleguide.html): статичные демо-состояния.
+   На сайте не используются. Повторяют настоящие :hover / :active;
+   :enabled / :not(:disabled) — чтобы демо-класс не перебил disabled.
+   (.is-focus — в base.css вместе с :focus-visible, .is-autofill — у поля.)
+   ========================================================================== */
+.btn--primary.is-hover:not(:disabled) {
+  --btn-bg: var(--color-accent-hover);
+  --btn-border: var(--color-accent-hover);
+}
+
+.btn--secondary.is-hover:not(:disabled) {
+  --btn-bg: var(--overlay-hover);
+}
+
+.btn--ghost.is-hover:not(:disabled) {
+  text-decoration-color: var(--color-accent);
+}
+
+.btn.is-active:not(:disabled) {
+  transform: translateY(var(--press-shift));
+}
+
+.btn--primary.is-active:not(:disabled) {
+  --btn-bg: var(--color-accent-active);
+  --btn-border: var(--color-accent-active);
+}
+
+.btn--secondary.is-active:not(:disabled) {
+  --btn-bg: var(--overlay-active);
+}
+
+.btn--ghost.is-active:not(:disabled) {
+  --btn-fg: var(--color-accent);
+}
+
+.icon-btn.is-hover:not(:disabled) {
+  --ib-bg: var(--overlay-hover);
+}
+
+.icon-btn.is-active:not(:disabled) {
+  --ib-bg: var(--overlay-active);
+  transform: translateY(var(--press-shift));
+}
+
+.fab.is-hover {
+  background-color: var(--color-surface-raised);
+}
+
+.fab.is-active {
+  background-color: var(--color-surface);
+  background-image: linear-gradient(var(--overlay-active), var(--overlay-active));
+  transform: translateY(var(--press-shift));
+}
+
+.input.is-hover:not(:disabled) {
+  --input-border: var(--color-chalk);
+}
+
+.search__clear.is-hover::before {
+  background-color: var(--overlay-hover);
+}
+
+.choice.is-hover .choice__input:enabled:not(:checked) + .choice__box,
+.choice.is-hover .choice__input[type="checkbox"]:enabled:indeterminate + .choice__box {
+  --box-bg: var(--overlay-hover);
+}
+
+.choice.is-hover .choice__input:enabled:checked:not(:indeterminate) + .choice__box {
+  --box-bg: var(--color-accent-hover);
+  --box-border: var(--color-accent-hover);
+}
+
+.choice.is-active .choice__input:enabled:not(:checked) + .choice__box {
+  --box-bg: var(--overlay-active);
+}
+
+.choice.is-active .choice__input:enabled:checked:not(:indeterminate) + .choice__box {
+  --box-bg: var(--color-accent-active);
+  --box-border: var(--color-accent-active);
+}
+
+.switch.is-hover .switch__input:enabled:not(:checked) + .switch__track {
+  --track-overlay: linear-gradient(var(--overlay-hover), var(--overlay-hover));
+}
+
+.switch.is-hover .switch__input:enabled:checked + .switch__track {
+  --track-bg: var(--color-accent-hover);
+  --track-border: var(--color-accent-hover);
+}
+
+.switch.is-active .switch__input:enabled + .switch__track .switch__thumb {
+  width: calc(var(--toggle-h) + var(--space-4));
+}
+
+.switch.is-active .switch__input:enabled:checked + .switch__track .switch__thumb {
+  margin-left: calc(-1 * var(--space-4));
+}
+
+.tab.is-hover {
+  color: var(--color-chalk);
+}
+
+.tab.is-active {
+  color: var(--color-accent);
+}
+
+.chip.is-hover:enabled {
+  --chip-bg: var(--overlay-hover);
+}
+
+.chip[aria-pressed="true"].is-hover:enabled {
+  --chip-bg: var(--color-accent-hover);
+  --chip-border: var(--color-accent-hover);
+}
+
+.chip.is-active:enabled {
+  --chip-bg: var(--overlay-active);
+}
+
+.chip[aria-pressed="true"].is-active:enabled {
+  --chip-bg: var(--color-accent-active);
+  --chip-border: var(--color-accent-active);
+}
+
+.link.is-hover {
+  color: var(--color-accent-hover);
+  text-decoration-thickness: var(--border-hand);
+}
+
+.link.is-active {
+  color: var(--color-accent-active);
+}
+
+.card--link.is-hover {
+  background-color: var(--color-surface-raised);
+}
+
+.nav-link.is-hover {
+  color: var(--color-chalk);
+}
+
+.footer-link.is-hover {
+  text-decoration-color: var(--color-chalk);
+}
+
+/* ==========================================================================
+   7.6 Режим высокой контрастности (forced-colors)
+   Браузер перекрашивает текст, контуры и outline в системные цвета, а
+   background-color — в Canvas. Здесь — только то, что без правил пропало бы:
+   заливки «выбрано», подчёркивания, глифы-маски, отточие. Цвета — системные.
+   Декоративный фон доски скрыт в base.css.
+   ========================================================================== */
+@media (forced-colors: active) {
+  /* Чекбокс и радио: выбранное — заливка Highlight, глиф HighlightText */
+  .choice__input:checked + .choice__box {
+    forced-color-adjust: none;
+    border-color: Highlight;
+    background-color: Highlight;
+  }
+
+  .choice__input:checked + .choice__box::after {
+    background-color: HighlightText;
+  }
+
+  .choice__input[type="checkbox"]:indeterminate + .choice__box {
+    forced-color-adjust: none;
+    border-color: CanvasText;
+    background-color: Canvas;
+  }
+
+  .choice__input[type="checkbox"]:indeterminate + .choice__box::after {
+    background-color: CanvasText;
+  }
+
+  .choice:has(.choice__input:disabled) {
+    color: GrayText;
+  }
+
+  .choice .choice__input:disabled + .choice__box {
+    forced-color-adjust: none;
+    border-color: GrayText;
+    background-color: Canvas;
+  }
+
+  .choice .choice__input:disabled + .choice__box::after {
+    background-color: GrayText;
+  }
+
+  /* Тоггл: выкл. — Canvas с контуром CanvasText; вкл. — трек Highlight, бегунок HighlightText */
+  .switch__track,
+  .switch__thumb {
+    forced-color-adjust: none;
+  }
+
+  .switch__track {
+    border-color: CanvasText;
+    background-color: Canvas;
+    background-image: none;
+  }
+
+  .switch__thumb {
+    border-color: CanvasText;
+    background-color: Canvas;
+  }
+
+  .switch__input:checked + .switch__track {
+    border-color: Highlight;
+    background-color: Highlight;
+  }
+
+  .switch__input:checked + .switch__track .switch__thumb {
+    border-color: Highlight;
+    background-color: HighlightText;
+  }
+
+  .switch:has(.switch__input:disabled) {
+    color: GrayText;
+  }
+
+  .switch .switch__input:disabled + .switch__track,
+  .switch .switch__input:disabled + .switch__track .switch__thumb {
+    border-color: GrayText;
+    background-color: Canvas;
+  }
+
+  /* недоступный вкл.: бегунок справа, залит GrayText */
+  .switch .switch__input:disabled:checked + .switch__track .switch__thumb {
+    background-color: GrayText;
+  }
+
+  /* Чипс: выбранный / текущий раздел — Highlight / HighlightText, галочка HighlightText */
+  .chip[aria-pressed="true"],
+  .chip[aria-current="true"] {
+    forced-color-adjust: none;
+    border-color: Highlight;
+    background-color: Highlight;
+    color: HighlightText;
+  }
+
+  .chip[aria-pressed="true"]::before {
+    background-color: HighlightText;
+  }
+
+  .chip:disabled {
+    forced-color-adjust: none;
+    border-color: GrayText;
+    background-color: Canvas;
+    color: GrayText;
+  }
+
+  .chip[aria-pressed="true"]:disabled::before {
+    background-color: GrayText;
+  }
+
+  /* Подчёркивание активной вкладки и текущего пункта навигации */
+  .tab::after,
+  .nav-link::after {
+    forced-color-adjust: none;
+    background-color: Highlight;
+  }
+
+  .tab:disabled,
+  .btn:disabled {
+    color: GrayText;
+  }
+
+  /* Глифы-маски: фон псевдоэлемента стал бы Canvas — глиф исчез бы */
+  .select::after,
+  .search::before,
+  .field__error::before,
+  .field__counter--over::before {
+    forced-color-adjust: none;
+    background-color: CanvasText;
+  }
+
+  .select:has(.input:disabled)::after,
+  .search:has(.input:disabled)::before {
+    background-color: GrayText;
+  }
+
+  .input:disabled {
+    color: GrayText;
+    -webkit-text-fill-color: GrayText;
+  }
+
+  /* Отточие строки меню */
+  .menu-item__title::after,
+  .menu-item__leader {
+    --leader-color: CanvasText;
+    forced-color-adjust: none;
+  }
+
+  /* forced-color-adjust: none отключает подмену и для outline: без этого кольцо
+     осталось бы #FFDE75 и в светлых контрастных темах было бы невидимо */
+  .choice__input:focus-visible + .choice__box,
+  .switch__input:focus-visible + .switch__track,
+  .chip:focus-visible,
+  .is-focus {
+    outline-color: CanvasText;
+  }
+}

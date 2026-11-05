@@ -1,0 +1,1166 @@
+/* ==========================================================================
+   Кофеттория — главная (index.html): шапка, навигация по меню, меню, адреса
+   Зависит от tokens.css, base.css, components.css.
+   Брейкпоинты — литералы из tokens.css: 768 / 1024 / 1280.
+   ========================================================================== */
+
+:root {
+  --hero-h: max(33.333vh, 13rem);       /* шапка при открытии — треть экрана */
+  --bar-h: 56px;                        /* шапка, сжатая в полосу */
+  --menu-nav-h: 52px;                   /* липкая строка разделов; JS уточняет по факту */
+  --menu-wide: 100rem;                  /* меню на больших экранах — шире общего контейнера */
+  --menu-col: 26rem;                    /* ширина колонки разделов на ПК: 2 колонки на 1280, 3 на 1920 */
+  --price-col: 3.5rem;                  /* колонка цены: «320 ₽» + запас */
+  --price-gap: var(--space-8);
+}
+
+@supports (height: 1svh) {
+  :root {
+    --hero-h: max(33.333svh, 13rem);    /* svh: без скачка при появлении адресной строки */
+  }
+}
+
+/* Узкий телефон: три цены «250 / 350 / 450 мл» встают рядом с названием —
+   колонка остаётся 56 (подпись «350 мл» — 54), сужаются зазор и отточие */
+@media (max-width: 399.98px) {
+  :root {
+    --price-gap: var(--space-4);
+  }
+
+  .menu-item--cols-3 {
+    --leader-min: var(--space-8);
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --bar-h: 64px;
+    --price-col: 4.5rem;
+  }
+}
+
+/* ПК: меню на ступеньку мельче — больше строк на экране:
+   строки и цены 20/28 → 18/26, заголовки разделов 44 → 36, «хвост» 28 → 22 */
+@media (min-width: 1024px) {
+  :root {
+    --text-menu-item-size: 1.125rem;
+    --text-menu-item-lh: 1.625rem;
+    --text-price-size: 1.125rem;
+    --text-price-lh: 1.625rem;
+    --text-h2-size: 2.25rem;
+    --text-h2-tail-size: 1.375rem;
+    --price-col: 4rem;
+  }
+}
+
+/* Якоря и ссылки в фокусе встают под полосу шапки и строку разделов. Отступ у них, а не scroll-padding
+   на html: с ним браузер считает залипшую строку разделов скрытой и при Tab по ней отбрасывает страницу вверх */
+main [id],
+main a,
+main button,
+.site-footer a {
+  scroll-margin-top: calc(var(--bar-h) + var(--menu-nav-h) + var(--space-16));
+}
+
+.menu-nav a,
+.menu-nav button {
+  scroll-margin-top: 0;
+}
+
+/* Контакты в подвале: строки разделов там уже нет, под полосой шапки сразу первый адрес */
+#contacts {
+  scroll-margin-top: calc(var(--bar-h) + var(--space-16));
+}
+
+/* Плавность задаёт site.js. Иначе страница, открытая со ссылкой на раздел или обновлённая
+   на ней, показывалась бы с начала и потом ехала к разделу */
+.js {
+  scroll-behavior: auto;
+}
+
+/* ==========================================================================
+   Шапка: 1/3 экрана -> полоса --bar-h. Два положения, переход ниже
+   ========================================================================== */
+.site-header {
+  --word-w: 96px;                       /* до 360 рядом с логотипом и двумя кнопками помещается только 96 */
+  position: relative;
+  z-index: var(--z-header);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  height: var(--hero-h);
+  padding: var(--space-24) var(--page-gutter);
+  padding-top: max(var(--space-24), env(safe-area-inset-top));
+}
+
+@media (min-width: 360px) {
+  .site-header {
+    --word-w: 124px;
+  }
+}
+
+@media (min-width: 768px) {
+  .site-header {
+    --word-w: 144px;
+  }
+}
+
+.site-header__bar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-8);
+  height: var(--bar-h);
+  padding-inline: max(var(--page-gutter), (100% - var(--menu-wide)) / 2);
+}
+
+/* Надпись и кнопки «Адреса», «Контакты» видны только в свёрнутой шапке */
+.site-header__word,
+.site-header__action {
+  visibility: hidden;
+  opacity: 0;
+}
+
+/* Надпись стоит за логотипом в полосе: его ширина — высота полосы без полей × пропорции знака.
+   Низ букв — на линии низа внешнего круга со знака (738 из 864 по высоте), логотип и надпись стоят
+   на ней вместе. На всю высоту полосы: нажатие по ней, как и по логотипу, ведёт в начало */
+.site-header__word {
+  display: flex;
+  flex: none;
+  align-items: flex-end;
+  height: 100%;
+  padding-bottom: calc(var(--space-8) + (var(--bar-h) - 2 * var(--space-8)) * 126 / 864);
+  margin-right: auto;
+  margin-left: calc((var(--bar-h) - 2 * var(--space-8)) * 1590 / 864 + var(--space-8));
+  -webkit-tap-highlight-color: transparent;
+}
+
+.site-header__word .logo {
+  width: var(--word-w);
+  height: auto;
+  aspect-ratio: 124 / 14;
+}
+
+/* Телефон: кнопки — только иконки 40 (зона 44), название остаётся для скринридера;
+   логотип, надпись и две кнопки с подписями помещаются только от ~520 */
+.site-header__action {
+  --btn-px: calc((var(--btn-h-m) - var(--icon-m)) / 2 - var(--border-hand));
+  --btn-min-w: 0;
+}
+
+@media (max-width: 519.98px) {
+  .site-header__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 520px) {
+  .site-header__action {
+    --btn-px: var(--space-12);
+  }
+}
+
+@media (min-width: 768px) {
+  .site-header__action {
+    --btn-px: var(--space-16);
+  }
+}
+
+/* Логотип один: уменьшается к левому краю полосы и остаётся в ней */
+.site-header__brand {
+  display: block;
+  border-radius: var(--radius-md);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.site-header__logo {
+  width: auto;
+  height: calc(var(--hero-h) - 2 * var(--space-24) - 2 * var(--space-8) - var(--hand-xl-lh) - var(--ui-s-lh));
+  max-width: calc(100vw - 2 * var(--page-gutter));
+  aspect-ratio: 1590 / 864;
+}
+
+.site-header__hello {
+  font: var(--hand-xl);
+  letter-spacing: var(--hand-xl-ls);
+  color: var(--color-chalk);
+  text-align: center;
+}
+
+.site-header__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-8);
+  font: var(--ui-s);
+  letter-spacing: var(--ui-s-ls);
+  color: var(--color-chalk-muted);
+}
+
+/* Ссылки под приветствием — главный путь к адресам и телефону: зона нажатия 44 */
+.site-header__links .link {
+  position: relative;
+}
+
+.site-header__links .link::after {
+  content: "";
+  position: absolute;
+  inset: calc((var(--ui-s-lh) - var(--hit-min)) / 2) calc(-1 * var(--space-4));
+}
+
+/* Панель шапки (непрозрачный фон) нужна только со скриптом */
+.site-header__panel {
+  display: none;
+}
+
+/* Со скриптом шапка закреплена, у неё два положения, .head-closed на <html> переключает их.
+   Сама шапка не двигается: у логотипа один transform, а не два встречных (шапка вверх, логотип вниз).
+   Фон шапки — отдельная непрозрачная панель: её низ приклеен к верху страницы, меню за ней не видно.
+   Страница свёрстана под полосу; пока шапка раскрыта, main и подвал сдвинуты вниз.
+   Логотип, панель и страницу двигает один переход в site.js, чтобы они не расходились; здесь — их
+   положения до запуска скрипта и CSS-переходы прозрачности текста и кнопок.
+   main и подвал всегда на своём слое (translate3d в обоих положениях): слой не создаётся заново
+   на старте перехода. Панель и логотип заранее на своих слоях (will-change), логотип — сложный SVG,
+   в покое в полосе site.js снимает will-change, и браузер перерисовывает его чётким */
+.js .site-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  pointer-events: none;                 /* блок шапки высотой с раскрытую: не перехватывает нажатия по меню */
+}
+
+/* -1px снизу: подстраховка от щели на дробных размерах, цвет тот же, что у строки разделов.
+   Панель нажатия не пропускает: под полосой могут оказаться кнопки страницы, вплоть до «Позвонить» */
+.js .site-header__panel {
+  position: absolute;
+  inset: 0 0 -1px;
+  z-index: -1;
+  display: block;
+  pointer-events: auto;
+  border-bottom: var(--border-hair) solid var(--color-line-subtle);
+  background-color: var(--color-board-deep);
+  will-change: transform;
+}
+
+.head-closed .site-header__panel {
+  transform: translate3d(0, calc(var(--bar-h) - var(--hero-h)), 0);
+}
+
+.js .site-header__brand,
+.js .site-header__links,
+.js .site-header__word,
+.js .site-header__action {
+  pointer-events: auto;
+}
+
+.js main {
+  margin-top: var(--bar-h);
+}
+
+.js main,
+.js .site-footer {
+  transform: translate3d(0, calc(var(--hero-h) - var(--bar-h)), 0);
+}
+
+.head-closed main,
+.head-closed .site-footer {
+  transform: translate3d(0, 0, 0);
+}
+
+.js .site-header__brand {
+  will-change: transform;
+}
+
+/* Приветствие и ссылки гаснут первыми, а при раскрытии появляются, когда место уже есть */
+.js .site-header__hello,
+.js .site-header__links {
+  transition: opacity var(--dur-fast) linear var(--dur-fast);
+}
+
+.head-closed .site-header__hello,
+.head-closed .site-header__links {
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    opacity var(--dur-fast) linear,
+    visibility 0s linear var(--dur-fast);
+}
+
+/* Надпись и кнопки проявляются в конце сворачивания */
+.js .site-header__word,
+.js .site-header__action {
+  transition:
+    opacity var(--dur-fast) linear,
+    visibility 0s linear var(--dur-fast);
+}
+
+.head-closed .site-header__word,
+.head-closed .site-header__action {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity var(--dur-fast) linear var(--dur-base);
+}
+
+/* Без JS шапка просто уезжает, строка разделов липнет к верху */
+.no-js .menu-nav {
+  top: 0;
+}
+
+/* ==========================================================================
+   Строка разделов.
+   Телефон и планшет: кнопка «все разделы» + вкладки всех разделов одним рядом.
+   ПК: «Еда | Напитки» + чипсы текущей группы
+   ========================================================================== */
+.menu-nav {
+  position: sticky;
+  top: var(--bar-h);
+  z-index: var(--z-header);
+  border-bottom: var(--border-hair) solid var(--color-line-subtle);
+  background-color: var(--color-board-deep);
+  box-shadow: var(--shadow-md);
+}
+
+.menu-nav__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  overflow-x: auto;
+  padding-block: var(--space-8);
+  scrollbar-width: none;
+}
+
+.menu-nav__row::-webkit-scrollbar {
+  display: none;
+}
+
+/* Затухание по краю — только там, где есть скрытые вкладки (классы от JS) */
+.menu-nav__row.is-fade-start {
+  --fade-start: var(--space-24);
+}
+
+.menu-nav__row.is-fade-end {
+  --fade-end: var(--space-32);
+}
+
+.menu-nav__row.is-fade-start,
+.menu-nav__row.is-fade-end {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--fade-start, 0px), #000 calc(100% - var(--fade-end, 0px)), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 var(--fade-start, 0px), #000 calc(100% - var(--fade-end, 0px)), transparent);
+}
+
+.menu-nav__chips {
+  display: flex;
+  flex: none;
+  gap: var(--space-8);
+}
+
+/* Кнопка появляется от JS: без него работают обычные якоря */
+.menu-nav__all[hidden] {
+  display: none;
+}
+
+/* Телефон и планшет: в строке видно больше всего разделов (сравнение решений — 13.6).
+   Переключателя групп нет: он занимал 40% ширины; группы — в списке всех разделов */
+@media (max-width: 1023.98px) {
+  .menu-nav__bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding-right: 0;
+  }
+
+  .menu-nav__all {
+    position: relative;
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    width: var(--chip-h);
+    height: var(--chip-h);
+    padding: 0;
+    border: var(--border-hand) solid var(--color-chalk);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-chalk);
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color var(--dur-fast) var(--ease-standard);
+  }
+
+  .menu-nav__all::after {
+    content: "";
+    position: absolute;
+    inset: calc((var(--chip-h) - var(--hit-min)) / 2 - var(--border-hand));
+  }
+
+  .menu-nav__all svg {
+    width: var(--icon-m);
+    height: var(--icon-m);
+  }
+
+  .menu-nav__row {
+    flex: 1 1 0;
+    gap: 0;
+    min-width: 0;
+    padding-block: var(--space-4);
+    padding-right: var(--page-gutter);
+  }
+
+  /* Все группы подряд, между ними — тонкая черта */
+  .menu-nav__chips {
+    gap: 0;
+  }
+
+  .menu-nav__chips + .menu-nav__chips {
+    margin-left: var(--space-4);
+    padding-left: var(--space-4);
+    border-left: var(--border-hair) solid var(--color-line-subtle);
+  }
+
+  /* Вкладка — текст без рамки, текущая — заливка accent */
+  .menu-nav .chip {
+    --chip-border: transparent;
+    padding-inline: var(--space-8);
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  .menu-nav .chip[aria-current="true"] {
+    --chip-border: var(--color-accent);
+  }
+
+  .menu-nav .chip::after {
+    content: "";
+    position: absolute;
+    inset: calc((var(--chip-h) - var(--hit-min)) / 2 - var(--border-hand)) calc(-1 * var(--border-hand));
+  }
+
+  .menu-nav .chip:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .menu-nav__all:active {
+    background-color: var(--overlay-active);
+  }
+}
+
+@media (max-width: 1023.98px) and (hover: hover) and (pointer: fine) {
+  .menu-nav__all:hover {
+    background-color: var(--overlay-hover);
+  }
+}
+
+/* Переключатель групп (только ПК): капсула с двумя половинами, текущая — accent */
+.menu-switch {
+  display: none;
+  flex: none;
+  padding: var(--border-hand);
+  border: var(--border-hand) solid var(--color-chalk);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-board-deep);
+}
+
+/* ПК: строка шириной с меню, все чипсы группы видны сразу —
+   переносятся на вторую строку, а не прокручиваются вбок (колесо мыши крутит страницу) */
+@media (min-width: 1024px) {
+  .menu-nav .container {
+    max-width: calc(var(--menu-wide) + 2 * var(--page-gutter));
+  }
+
+  .menu-nav__row {
+    align-items: flex-start;
+    overflow-x: visible;
+  }
+
+  .menu-nav__chips {
+    flex: 1 1 0;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .menu-nav__chips[hidden],
+  .menu-nav__all {
+    display: none;
+  }
+
+  .menu-switch {
+    display: flex;
+  }
+}
+
+.menu-switch__item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: calc(var(--chip-h) - 4 * var(--border-hand));
+  padding-inline: var(--space-12);
+  border-radius: var(--radius-pill);
+  color: var(--color-chalk);
+  font: var(--ui-s);
+  letter-spacing: var(--ui-s-ls);
+  white-space: nowrap;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
+}
+
+.menu-switch__item[aria-current="true"] {
+  background-color: var(--color-accent);
+  color: var(--color-ink);
+}
+
+@media (hover: hover) {
+  .menu-switch__item:not([aria-current="true"]):hover {
+    background-color: var(--overlay-hover);
+  }
+}
+
+@media (pointer: coarse) {
+  .menu-switch__item::after {
+    content: "";
+    position: absolute;
+    inset: calc((var(--chip-h) - 4 * var(--border-hand) - var(--hit-min)) / 2) 0;
+  }
+}
+
+/* forced-color-adjust: none отключает подмену и для outline — кольцо фокуса явно CanvasText (7.6) */
+@media (forced-colors: active) {
+  .menu-switch__item[aria-current="true"] {
+    forced-color-adjust: none;
+    background-color: Highlight;
+    color: HighlightText;
+  }
+
+  .menu-switch__item:focus-visible {
+    outline-color: CanvasText;
+  }
+}
+
+/* ==========================================================================
+   Меню: на ПК — разделы колонками на всю ширину
+   ========================================================================== */
+/* Строка разделов — первым ребёнком .menu: липнет только в пределах меню
+   и уходит вместе с ним перед «Адресами» */
+.menu__layout {
+  width: 100%;
+  max-width: calc(var(--menu-wide) + 2 * var(--page-gutter));
+  margin-inline: auto;
+  padding: var(--space-32) var(--page-gutter) var(--section-y);
+}
+
+/* ---------- Группы и разделы ---------- */
+.menu-part + .menu-part {
+  margin-top: var(--section-y);
+}
+
+/* Название группы — рукописная подпись с линией до края */
+.menu-part__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  margin-bottom: var(--space-32);
+  font: var(--hand-xl);
+  letter-spacing: var(--hand-xl-ls);
+  color: var(--color-chalk-muted);
+}
+
+.menu-part__title::after {
+  content: "";
+  flex: 1;
+  height: var(--border-hair);
+  background-color: var(--color-line-subtle);
+}
+
+/* ПК: разделы колонками, как доски рядом; раздел не рвётся между колонками */
+@media (min-width: 1024px) {
+  .menu-part__sections {
+    columns: var(--menu-col);
+    column-gap: var(--space-48);
+  }
+}
+
+/* Колонки заданы в данных (еда: «завтраки, пицца» | «салаты, перекус»):
+   на телефоне — одна лента, на ПК — сетка той же ширины колонок, что у напитков.
+   Рамка добавок — под колонками, а где помещается третья колонка (≥ 84rem) — в ней */
+.menu-part__col + .menu-part__col {
+  padding-top: var(--menu-group-gap);
+}
+
+@media (min-width: 1024px) {
+  .menu-part__sections--cols {
+    container: menu-cols / inline-size;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--menu-col), 1fr));
+    align-items: start;
+    column-gap: var(--space-48);
+    columns: auto;
+  }
+
+  .menu-part__col + .menu-part__col {
+    padding-top: 0;
+  }
+
+  .menu-part__sections--cols .menu-section--boxed {
+    grid-column: 1 / -1;
+  }
+}
+
+/* 84rem = 3 × --menu-col + 2 × --space-48 */
+@container menu-cols (min-width: 84rem) {
+  .menu-part__sections--cols:not(.is-laid) .menu-section--boxed {
+    grid-column: auto;
+    margin-top: 0;
+  }
+}
+
+/* С JS раскладку считает site.js: полосы сетки с колонками по реальной высоте разделов,
+   между ними — длинные разделы на всю ширину (строки колонками) */
+.menu-part__sections.is-laid {
+  display: block;
+  columns: auto;
+}
+
+.menu-part__band {
+  display: grid;
+  grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr));
+  align-items: start;
+  column-gap: var(--space-48);
+}
+
+.menu-part__band + .menu-part__band,
+.menu-part__band + .menu-section--wide,
+.menu-section--wide + .menu-part__band {
+  margin-top: var(--menu-group-gap);
+}
+
+.menu-section--wide > .menu-list,
+.menu-section--wide > .menu-section__head .menu-volumes {
+  display: none;
+}
+
+.menu-section__split {
+  display: grid;
+  grid-template-columns: repeat(var(--n, 2), minmax(0, 1fr));
+  align-items: start;
+  column-gap: var(--space-48);
+}
+
+.menu-section__split .menu-volumes {
+  justify-content: end;
+  margin-bottom: var(--space-8);
+}
+
+.menu-section--boxed.is-in-band {
+  margin-top: 0;
+}
+
+.menu-section {
+  padding-bottom: var(--menu-group-gap);
+  break-inside: avoid;
+}
+
+/* У рамки добавок нижний отступ — внутренний, его не обнуляем (иначе текст прилипает к рамке) */
+.menu-section:last-child:not(.menu-section--boxed) {
+  padding-bottom: 0;
+}
+
+/* Заголовок раздела слева, объёмы над колонками цен справа;
+   длинный заголовок уходит на свою строку, объёмы — под ним справа */
+.menu-section__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: last baseline;
+  justify-content: space-between;
+  gap: var(--space-8) var(--space-16);
+  margin-bottom: var(--space-16);
+}
+
+.menu-section__head .menu-volumes {
+  margin-left: auto;
+}
+
+.menu-section__head--sub {
+  margin-top: var(--space-40);
+}
+
+.menu-section__title {
+  min-width: 0;
+}
+
+.menu-section__subtitle {
+  font: var(--text-h3);
+  letter-spacing: var(--text-h3-ls);
+  text-transform: uppercase;
+}
+
+.menu-volumes {
+  display: grid;
+  flex: none;
+  grid-auto-columns: var(--price-col);
+  grid-auto-flow: column;
+  column-gap: var(--price-gap);
+  font: var(--text-overline);
+  letter-spacing: var(--text-overline-ls);
+  text-transform: uppercase;
+  color: var(--color-chalk-muted);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Один объём («1 шарик») — по ширине подписи, прижат вправо над ценой */
+.menu-volumes--1 {
+  grid-auto-columns: minmax(var(--price-col), auto);
+}
+
+/* Строка с несколькими ценами: колонки под объёмы */
+.menu-item--cols-2 {
+  --cols: 2;
+}
+
+.menu-item--cols-3 {
+  --cols: 3;
+}
+
+/* Четыре объёма не встают рядом с названием ни на какой ширине: цены — второй строкой */
+.menu-item--cols-4 {
+  --cols: 4;
+  flex-wrap: wrap;
+  row-gap: var(--space-4);
+}
+
+.menu-item--cols-4 .menu-item__title {
+  flex-basis: 100%;
+  padding-right: 0;
+}
+
+.menu-item--cols-4 .menu-item__title::after {
+  display: none;
+}
+
+.menu-item--cols-4 .menu-item__leader {
+  display: block;
+}
+
+/* Цены от 1000 ₽ («1200 ₽»): колонки цен этого раздела шире */
+.menu-section--long-prices {
+  --price-col: 4.5rem;
+}
+
+@media (min-width: 768px) {
+  .menu-section--long-prices {
+    --price-col: 5.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .menu-section--long-prices {
+    --price-col: 5rem;
+  }
+}
+
+.menu-item__prices {
+  display: grid;
+  flex: none;
+  grid-template-columns: repeat(var(--cols), var(--price-col));
+  column-gap: var(--price-gap);
+}
+
+.menu-item__prices .menu-item__price {
+  text-align: right;
+}
+
+/* Нет такого объёма — прочерк мелом снизу слева вверх вправо ровно на месте цены «000 ₽»:
+   ширина как у цены со знаком (2.5em + разрядка после «₽» 0.04em — замер Roboto Condensed,
+   цифры моноширинные), высота — от базовой линии до верха цифр (0.72em); линия из угла в угол,
+   круглые концы выходят за рамку (overflow: visible), цвет отточия */
+.menu-item__dash {
+  display: inline-block;
+  width: 2.5em;
+  height: 0.72em;
+  margin-right: 0.04em;
+  overflow: visible;
+  color: var(--color-chalk-muted);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--border-hand);
+  stroke-linecap: round;
+  vertical-align: baseline;
+}
+
+/* Добавки к блюдам — в рамке в конце группы, как на доске: сначала блюда, потом добавки */
+.menu-section--boxed {
+  container-type: inline-size;
+  margin-top: var(--menu-group-gap);
+  padding: var(--space-20) var(--space-12);
+  border: var(--border-hand) solid var(--color-chalk);
+}
+
+.menu-section--boxed .menu-section__head,
+.menu-section--boxed .menu-section__title {
+  justify-content: center;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .menu-section--boxed {
+    padding: var(--space-32);
+  }
+}
+
+/* Добавки: смысловые группы колонками (мясо и рыба | овощи, сыр, яйцо | соусы и сладкое);
+   сколько колонок — решают ширина рамки и число групп: 1 на телефоне и в узкой колонке ПК,
+   от ~600 px — все группы (четыре — по две в ряд, в один ряд от 60rem) */
+.menu-extras {
+  --leader-min: var(--space-8);
+  display: grid;
+  gap: var(--space-24) var(--space-32);
+}
+
+/* колонка не уже своей самой длинной строки — «Куриные колбаски» не переносится */
+@container (min-width: 37rem) {
+  .menu-extras--2,
+  .menu-extras--4 {
+    grid-template-columns: repeat(2, minmax(max-content, 1fr));
+  }
+
+  .menu-extras--3 {
+    grid-template-columns: repeat(3, minmax(max-content, 1fr));
+  }
+}
+
+@container (min-width: 60rem) {
+  .menu-extras--4 {
+    grid-template-columns: repeat(4, minmax(max-content, 1fr));
+  }
+}
+
+.menu-extras__title {
+  margin-bottom: var(--space-8);
+  font: var(--text-overline);
+  letter-spacing: var(--text-overline-ls);
+  text-transform: uppercase;
+  color: var(--color-chalk-muted);
+}
+
+/* Добавки пишутся мельче блюд, как на доске: 16/24 на всех ширинах —
+   так «Куриные колбаски» встают в строку в колонке от 185 px */
+.menu-extras .menu-item__title,
+.menu-extras .menu-item__price {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+/* ==========================================================================
+   Адреса
+   ========================================================================== */
+.places {
+  padding-block: var(--section-y);
+}
+
+.places__lead {
+  max-width: var(--measure-text);
+  margin-top: var(--space-8);
+  color: var(--color-chalk-muted);
+}
+
+.places__grid {
+  display: grid;
+  gap: var(--grid-gutter);
+}
+
+@media (min-width: 768px) {
+  .places__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .places__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.place-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding: var(--card-padding);
+  border: var(--border-hair) solid var(--color-line-subtle);
+  border-radius: var(--card-radius);
+  background-color: var(--card-bg);
+}
+
+.place-card__title {
+  font: var(--text-h3);
+  letter-spacing: var(--text-h3-ls);
+  text-transform: uppercase;
+}
+
+/* Открыто / закрыто сейчас — по московскому времени, от JS */
+.place-card__status {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: var(--space-8);
+  font: var(--ui-s);
+  letter-spacing: var(--ui-s-ls);
+  color: var(--color-chalk-muted);
+}
+
+.place-card__status::before {
+  content: "";
+  flex: none;
+  width: var(--space-8);
+  height: var(--space-8);
+  border: var(--border-hand) solid currentColor;
+  border-radius: var(--radius-pill);
+}
+
+.place-card__status.is-open {
+  color: var(--color-success);
+}
+
+.place-card__status.is-open::before {
+  background-color: currentColor;
+}
+
+.place-card__line {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-12);
+}
+
+.place-card__icon {
+  flex: none;
+  width: var(--icon-m);
+  height: var(--icon-m);
+  margin-top: var(--space-4);
+  color: var(--color-chalk-muted);
+}
+
+.place-card__metro {
+  display: block;
+  font: var(--text-small);
+  letter-spacing: var(--text-small-ls);
+  color: var(--color-chalk-muted);
+}
+
+.place-card__note {
+  font: var(--text-small);
+  letter-spacing: var(--text-small-ls);
+  color: var(--color-chalk-muted);
+}
+
+.place-card__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-8);
+  margin-top: auto;
+  padding-top: var(--space-8);
+}
+
+.place-card__actions .btn {
+  width: 100%;
+  min-width: 0;
+  padding-inline: var(--space-12);
+}
+
+.place-card__rating {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: var(--hit-min);
+  font: var(--text-small);
+  letter-spacing: var(--text-small-ls);
+}
+
+/* ==========================================================================
+   Все разделы меню: на телефоне — окно снизу (под большой палец), от 768 — по центру
+   ========================================================================== */
+.menu-sheet {
+  width: 100%;
+  max-width: none;
+  max-height: 90svh;                    /* 16 разделов без прокрутки уже на экране 667 */
+  /* Окно стоит над панелью браузера законченной карточкой: в Safari на iPhone низ окна проходит
+     по границе видимой области, ниже сразу панель, и вплотную к ней оно выглядит срезанным */
+  margin: auto 0 calc(var(--space-12) + env(safe-area-inset-bottom, 0px));
+  /* Обводка не сужает колонки: на 360 «Молоко и добавки» в одну строку.
+     Отступ снизу задаёт ::after */
+  padding: var(--space-24) calc(var(--page-gutter) - var(--border-hand)) 0;
+  border: var(--border-hand) solid var(--color-accent);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-board-deep);
+  color: var(--color-chalk);
+  box-shadow: var(--shadow-md);
+  overscroll-behavior: contain;
+}
+
+/* Низ окна: в конце прокрутки это пустое место под последней строкой, а пока содержимое
+   не помещается — плавное затухание вместо обрыва по краю */
+.menu-sheet::after {
+  content: "";
+  position: sticky;
+  bottom: 0;
+  display: block;
+  height: var(--space-24);
+  background-image: linear-gradient(to bottom, transparent, var(--color-board-deep));
+  pointer-events: none;
+}
+
+.menu-sheet::backdrop {
+  background-color: rgb(0 0 0 / 0.6);
+}
+
+@media (min-width: 768px) {
+  .menu-sheet {
+    width: min(100% - 2 * var(--page-gutter), 36rem);
+    margin: auto;
+    padding: var(--space-32) var(--space-32) 0;
+  }
+}
+
+/* Пока окно открыто, страница под ним не прокручивается */
+html:has(.menu-sheet[open]) {
+  overflow: hidden;
+}
+
+.menu-sheet[open] {
+  animation: menu-sheet-in var(--dur-base) var(--ease-out);
+}
+
+.menu-sheet[open]::backdrop {
+  animation: menu-sheet-fade var(--dur-base) var(--ease-out);
+}
+
+@keyframes menu-sheet-in {
+  from {
+    transform: translateY(var(--space-48));
+    opacity: 0;
+  }
+}
+
+@keyframes menu-sheet-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.menu-sheet__body {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.menu-sheet__group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  min-height: var(--hit-min);
+  border-radius: var(--radius-md);
+  color: var(--color-chalk-muted);
+  font: var(--hand-lg);
+  text-decoration: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.menu-sheet__group::after {
+  content: "";
+  flex: 1 1 0;
+  border-top: var(--border-hair) solid var(--color-line-subtle);
+}
+
+.menu-sheet__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--space-8);
+}
+
+.menu-sheet__link {
+  display: flex;
+  align-items: center;
+  min-height: var(--hit-min);
+  padding: var(--space-4) var(--space-12);
+  border-radius: var(--radius-md);
+  color: var(--color-chalk);
+  font: var(--ui-s);
+  letter-spacing: var(--ui-s-ls);
+  text-decoration: none;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+
+.menu-sheet__link:active {
+  background-color: var(--overlay-active);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .menu-sheet__link:hover {
+    background-color: var(--overlay-hover);
+  }
+}
+
+.menu-sheet__link[aria-current="true"] {
+  background-color: var(--color-accent);
+  color: var(--color-ink);
+}
+
+@media (forced-colors: active) {
+  .menu-sheet__link[aria-current="true"] {
+    forced-color-adjust: none;
+    background-color: Highlight;
+    color: HighlightText;
+  }
+}
+
+.menu-sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+}
+
+.menu-sheet__title {
+  font: var(--text-h2);
+  letter-spacing: var(--text-h2-ls);
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   Подвал
+   ========================================================================== */
+/* Сетка — из components.css (13.4): стек / 2×2 / 4 колонки; логотип не меньше 176 (8.5) */
+.site-footer__brand {
+  display: grid;
+  align-content: start;
+  gap: var(--space-16);
+}
+
+.site-footer__place {
+  display: grid;
+  align-content: start;
+  gap: var(--space-4);
+}
+
+.site-footer__place .footer-link {
+  width: auto;
+  justify-self: start;
+  margin-top: var(--space-4);
+}
